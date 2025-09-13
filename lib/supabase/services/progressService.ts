@@ -8,7 +8,6 @@ export interface GameProgress {
   time_taken: number // in seconds
   score: number
   created_at?: string
-  remaining_lives: number
 }
 
 export interface GameStats {
@@ -38,8 +37,7 @@ export class ProgressService {
     poemId: string, 
     timeTaken: number, 
     score: number,
-    userId: string,
-    remaining_lives: number
+    userId: string
   ): Promise<GameProgress | null> {
     try {
       const supabase = createClerkSupabaseClientFromHook(sessionToken)
@@ -49,8 +47,7 @@ export class ProgressService {
         time_taken: timeTaken,
         score: score,
         user_id: userId,
-        completed_at: new Date().toISOString(),
-        remaining_lives: remaining_lives
+        completed_at: new Date().toISOString()
       }
       
       const { data, error } = await supabase
@@ -133,7 +130,7 @@ export class ProgressService {
         // Update existing stats
         const totalGames = currentStats.total_games_played + 1
         const totalTime = currentStats.total_time_played + timeTaken
-        const newAverageScore = Math.round((((currentStats.average_score * currentStats.total_games_played) + score) / totalGames*100))
+        const newAverageScore = ((currentStats.average_score * currentStats.total_games_played) + score) / totalGames
         const newBestScore = Math.max(currentStats.best_score, score)
         
         const updatedPoemsCompleted = Array.from(new Set([...currentStats.poems_completed, poemId]))

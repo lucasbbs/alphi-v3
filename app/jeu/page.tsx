@@ -68,7 +68,7 @@ const wordClasses: WordClass[] = [
 const defaultPoems: Poem[] = [
   {
     id: "default-1",
-    image: "",
+    image: "/logo.png",
     verse: "Demain, l'hiver viendra poser sa main froide sur nos rêves.",
     words: [
       { word: "Demain", class: "adverbe", isSelected: false }, // H
@@ -430,7 +430,6 @@ export default function JeuPage() {
         sessionTime,
         finalScore,
         userId,
-        lives,
       );
 
       console.log("Game progress saved successfully");
@@ -479,7 +478,7 @@ export default function JeuPage() {
 
   if (!user) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-orange-100 via-pink-50 to-teal-100">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-100 via-pink-50 to-teal-100">
         <div className="text-center">
           <h1 className="mb-4 text-2xl font-bold text-gray-800">
             Connectez-vous pour jouer !
@@ -582,6 +581,9 @@ export default function JeuPage() {
                       <span className="text-6xl">🌅</span>
                     )}
                   </div>
+                  <p className="text-center font-medium text-gray-700">
+                    {poem.verse}
+                  </p>
                 </div>
               ))}
             </div>
@@ -957,9 +959,9 @@ export default function JeuPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-center text-base text-gray-700 px-2">
+              <p className="text-center text-sm text-gray-600">
                 Mot actuel:{" "}
-                <span className="font-bold text-lg text-gray-900">
+                <span className="font-bold">
                   {droppedLetters.map((l) => l.letter).join("")}
                 </span>
               </p>
