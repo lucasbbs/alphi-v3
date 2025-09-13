@@ -957,9 +957,9 @@ export default function JeuPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-base text-gray-700 px-2">
                 Mot actuel:{" "}
-                <span className="font-bold">
+                <span className="font-bold text-lg text-gray-900">
                   {droppedLetters.map((l) => l.letter).join("")}
                 </span>
               </p>
