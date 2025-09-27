@@ -3,11 +3,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import useScroll from "@/lib/hooks/use-scroll";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 import { LayoutDashboard, Gamepad2, TrendingUp } from "lucide-react";
 
+import { useEffect, useState } from "react";
+import { Roles } from "types/globals";
+
 export default function NavBar() {
+  const { user } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const checkRole = async (role: Roles) => {
+    return user?.publicMetadata.role === role;
+  };
   const scrolled = useScroll(50);
+
+  useEffect(() => {
+    let mounted = true;
+    checkRole("admin").then((result) => {
+      if (mounted) setIsAdmin(result);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
   return (
     <>
@@ -26,21 +51,25 @@ export default function NavBar() {
           </Link>
 
           <div className="flex flex-col items-center gap-2 md:flex-row md:space-x-6">
-            <Link
-              href="/jeu"
-              className="flex items-center space-x-1 rounded-lg bg-pink-100 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:text-orange-600 active:bg-pink-800 active:text-white"
-            >
-              <span>🎮</span>
-              <span>Jouer</span>
-            </Link>
             <SignedIn>
-              {/* <Link
-                href="/admin"
+              <Link
+                href="/jeu"
                 className="flex items-center space-x-1 rounded-lg bg-pink-100 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:text-orange-600 active:bg-pink-800 active:text-white"
               >
-                <span>👩‍🏫</span>
-                <span>Administration</span>
-              </Link> */}
+                <span>🎮</span>
+                <span>Jouer</span>
+              </Link>
+            </SignedIn>
+            <SignedIn>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center space-x-1 rounded-lg bg-pink-100 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:text-orange-600 active:bg-pink-800 active:text-white"
+                >
+                  <span>👩‍🏫</span>
+                  <span>Administration</span>
+                </Link>
+              )}
               <Link
                 href="/progres"
                 className="flex items-center space-x-1 rounded-lg bg-pink-100 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:text-orange-600 active:bg-pink-800 active:text-white"
@@ -68,11 +97,13 @@ export default function NavBar() {
                 }}
               >
                 <UserButton.MenuItems>
-                  <UserButton.Link
-                    label="Tableau de Bord"
-                    labelIcon={<LayoutDashboard className="h-4 w-4" />}
-                    href="/admin"
-                  />
+                  {isAdmin && (
+                    <UserButton.Link
+                      label="Tableau de Bord"
+                      labelIcon={<LayoutDashboard className="h-4 w-4" />}
+                      href="/admin"
+                    />
+                  )}
                   <UserButton.Link
                     label="Jouer"
                     labelIcon={<Gamepad2 className="h-4 w-4" />}

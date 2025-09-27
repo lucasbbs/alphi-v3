@@ -7,6 +7,7 @@ export type Poem = LocalPoem
 
 interface GameState {
   poems: Poem[]
+  word_classes: string[]
   currentEditingPoem: Poem | null
   loading: boolean
   error: string | null
@@ -87,7 +88,8 @@ export const deletePoem = createAsyncThunk(
 )
 
 const initialState: GameState = {
-  poems: getDefaultPoems(),
+  poems: [],
+  word_classes: [],
   currentEditingPoem: null,
   loading: false,
   error: null

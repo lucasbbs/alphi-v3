@@ -430,6 +430,7 @@ export default function JeuPage() {
         sessionTime,
         finalScore,
         userId,
+        lives,
       );
 
       console.log("Game progress saved successfully");
@@ -920,13 +921,13 @@ export default function JeuPage() {
               <h3 className="mb-4 text-center text-lg font-semibold text-gray-800">
                 Mot mystère :
               </h3>
-              <div className="mb-4 flex min-h-[80px] items-center justify-center space-x-2 overflow-x-auto">
+              <div className="mb-4 flex min-h-[80px] min-w-full space-x-1 overflow-x-auto sm:items-center sm:justify-center">
                 {Array.from({
                   length: (selectedPoem?.targetWord || "HORAIRE").length,
                 }).map((_, index) => (
                   <div
                     key={index}
-                    className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white"
+                    className="flex h-16 w-16 flex-wrap items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white"
                     onDrop={(e) => {
                       e.preventDefault();
                       const letterId = e.dataTransfer.getData("letterId");

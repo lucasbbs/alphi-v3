@@ -8,6 +8,7 @@ export interface GameProgress {
   time_taken: number // in seconds
   score: number
   created_at?: string
+  remaining_lives: number
 }
 
 export interface GameStats {
@@ -37,7 +38,8 @@ export class ProgressService {
     poemId: string, 
     timeTaken: number, 
     score: number,
-    userId: string
+    userId: string,
+    remaining_lives: number
   ): Promise<GameProgress | null> {
     try {
       const supabase = createClerkSupabaseClientFromHook(sessionToken)
@@ -47,6 +49,7 @@ export class ProgressService {
         time_taken: timeTaken,
         score: score,
         user_id: userId,
+        remaining_lives: remaining_lives,
         completed_at: new Date().toISOString()
       }
       
@@ -71,13 +74,14 @@ export class ProgressService {
     }
   }
 
-  static async getUserProgress(sessionToken: string): Promise<GameProgress[]> {
+  static async getUserProgress(sessionToken: string, user_id: string): Promise<GameProgress[]> {
     try {
       const supabase = createClerkSupabaseClientFromHook(sessionToken)
       
       const { data, error } = await supabase
         .from('user_progress')
         .select('*')
+        .eq('user_id', user_id)
         .order('completed_at', { ascending: false })
 
       if (error) {
@@ -92,13 +96,14 @@ export class ProgressService {
     }
   }
 
-  static async getUserStats(sessionToken: string): Promise<GameStats | null> {
+  static async getUserStats(sessionToken: string, user_id: string): Promise<GameStats | null> {
     try {
       const supabase = createClerkSupabaseClientFromHook(sessionToken)
       
       const { data, error } = await supabase
         .from('user_stats')
         .select('*')
+        .eq('user_id', user_id)
         .single()
 
       if (error && error.code !== 'PGRST116') { // Not found error
@@ -124,13 +129,13 @@ export class ProgressService {
       const supabase = createClerkSupabaseClientFromHook(sessionToken)
       
       // Get current stats
-      const currentStats = await this.getUserStats(sessionToken)
+      const currentStats = await this.getUserStats(sessionToken, userId)
       
       if (currentStats) {
         // Update existing stats
         const totalGames = currentStats.total_games_played + 1
         const totalTime = currentStats.total_time_played + timeTaken
-        const newAverageScore = ((currentStats.average_score * currentStats.total_games_played) + score) / totalGames
+        const newAverageScore = Math.round(((currentStats.average_score/100 * currentStats.total_games_played + score) / totalGames)*100)
         const newBestScore = Math.max(currentStats.best_score, score)
         
         const updatedPoemsCompleted = Array.from(new Set([...currentStats.poems_completed, poemId]))
@@ -158,7 +163,7 @@ export class ProgressService {
             user_id: userId,
             total_games_played: 1,
             total_time_played: timeTaken,
-            average_score: score,
+            average_score: score*100,
             best_score: score,
             poems_completed: [poemId]
           }])

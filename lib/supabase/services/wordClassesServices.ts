@@ -1,0 +1,2 @@
+import { createClerkSupabaseClientFromHook } from '../client'
+
