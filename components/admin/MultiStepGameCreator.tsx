@@ -290,6 +290,7 @@ export default function MultiStepGameCreator({
           <WordClassification
             words={formData.words}
             availableClasses={formData.wordClasses}
+            wordColors={formData.wordColors}
             onWordsChange={(words: any[]) => updateFormData({ words })}
             onGameParticipatingWordsChange={(gameParticipatingWords: number[]) => 
               updateFormData({ gameParticipatingWords })}

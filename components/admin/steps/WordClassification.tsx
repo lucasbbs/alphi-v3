@@ -1,10 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
+import ColorPicker from '../ColorPicker'
+import Popover from '@/components/shared/popover'
 
 interface WordClassificationProps {
   words: any[]
   availableClasses: string[]
+  wordColors?: {[key: number]: string}
   onWordsChange: (words: any[]) => void
   onGameParticipatingWordsChange: (gameParticipatingWords: number[]) => void
   onWordColorsChange: (wordColors: {[key: number]: string}) => void
@@ -13,10 +16,16 @@ interface WordClassificationProps {
 export default function WordClassification({
   words,
   availableClasses,
+  wordColors = {},
   onWordsChange,
   onGameParticipatingWordsChange,
   onWordColorsChange
 }: WordClassificationProps) {
+  const [openPopovers, setOpenPopovers] = useState<{ [key: number]: boolean }>({})
+
+  const togglePopover = (index: number, open: boolean) => {
+    setOpenPopovers((prev) => ({ ...prev, [index]: open }))
+  }
   const handleWordClassChange = (wordIndex: number, newClass: string) => {
     const updatedWords = words.map((word, index) => 
       index === wordIndex ? { ...word, class: newClass } : word
@@ -36,14 +45,31 @@ export default function WordClassification({
       .filter(index => index !== -1)
     onGameParticipatingWordsChange(participatingWords)
 
-    // Generate colors for participating words
-    const colors: {[key: number]: string} = {}
+    // Only assign colors to newly selected words (preserve existing custom colors)
+    const colors: {[key: number]: string} = { ...wordColors }
     const colorPalette = ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899']
     
     participatingWords.forEach((wordIndex, colorIndex) => {
-      colors[wordIndex] = colorPalette[colorIndex % colorPalette.length]
+      // Only assign automatic color if word doesn't already have a custom color
+      if (!colors[wordIndex]) {
+        colors[wordIndex] = colorPalette[colorIndex % colorPalette.length]
+      }
     })
+
+    // Remove colors for words that are no longer participating
+    Object.keys(colors).forEach(key => {
+      const index = parseInt(key)
+      if (!participatingWords.includes(index)) {
+        delete colors[index]
+      }
+    })
+
     onWordColorsChange(colors)
+  }
+
+  const handleWordColorChange = (index: number, color: string) => {
+    const newWordColors = { ...wordColors, [index]: color }
+    onWordColorsChange(newWordColors)
   }
 
   return (
@@ -94,19 +120,43 @@ export default function WordClassification({
               </div>
 
               {word.isSelected && (
-                <div 
-                  className="w-6 h-6 rounded-full border-2 border-gray-300"
-                  style={{ 
-                    backgroundColor: words
-                      .map((w, i) => w.isSelected ? i : -1)
-                      .filter(i => i !== -1)
-                      .includes(index) 
-                        ? ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899'][
-                            words.map((w, i) => w.isSelected ? i : -1).filter(i => i !== -1).indexOf(index) % 8
-                          ]
-                        : '#D1D5DB'
+                <Popover
+                  openPopover={openPopovers[index] || false}
+                  setOpenPopover={(open) => {
+                    if (typeof open === "boolean") {
+                      togglePopover(index, open);
+                    } else {
+                      // Handle function case
+                      togglePopover(
+                        index,
+                        open(openPopovers[index] || false),
+                      );
+                    }
                   }}
-                />
+                  content={
+                    <div className="w-80 space-y-3 p-4">
+                      <h5 className="text-sm font-medium text-gray-700">
+                        Couleur pour "{word.word}"
+                      </h5>
+                      <ColorPicker
+                        selectedColor={wordColors[index] || "#D1D5DB"}
+                        onColorChange={(color) => {
+                          handleWordColorChange(index, color);
+                          togglePopover(index, false);
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <button
+                    type="button"
+                    className="h-6 w-6 rounded border border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      backgroundColor: wordColors[index] || "#D1D5DB",
+                    }}
+                    title="Choisir la couleur"
+                  />
+                </Popover>
               )}
             </div>
           ))}
