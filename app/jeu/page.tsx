@@ -829,8 +829,11 @@ export default function JeuPage() {
                               e.target.value,
                             )
                           }
+                          disabled={loadingWordClasses}
                         >
-                          <option value="">Choisir une classe...</option>
+                          <option value="">
+                            {loadingWordClasses ? "Chargement..." : "Choisir une classe..."}
+                          </option>
                           {wordClasses.map((wc) => (
                             <option key={wc.name} value={wc.name}>
                               {wc.name}
@@ -848,11 +851,19 @@ export default function JeuPage() {
                   Classes de mots :
                 </h4>
                 <div className="space-y-2">
-                  {wordClasses.map((wc) => (
-                    <div key={wc.name} className="flex items-center">
-                      <span className="text-gray-700">{wc.name}</span>
-                    </div>
-                  ))}
+                  {loadingWordClasses ? (
+                    <div className="text-sm text-gray-500">Chargement des classes de mots...</div>
+                  ) : wordClasses.length > 0 ? (
+                    wordClasses.map((wc) => (
+                      <div key={wc.name} className="flex items-center space-x-2">
+                        <div className={`h-4 w-4 rounded ${wc.color}`}></div>
+                        <span className="text-gray-700">{wc.name}</span>
+                        <span className="text-xs text-gray-500 font-mono">({wc.letter})</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500">Aucune classe de mots disponible.</div>
+                  )}
                 </div>
               </div>
             </div>
