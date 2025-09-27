@@ -88,6 +88,14 @@ export default function MultiStepGameCreator({
     setFormData(prev => ({ ...prev, ...updates }))
   }, [])
 
+  // Define callbacks at component level to avoid hooks in JSX
+  const handleVerseChange = useCallback((verse: string) => updateFormData({ verse }), [updateFormData])
+  const handleWordsChange = useCallback((words: any[]) => updateFormData({ words }), [updateFormData])
+  const handleWordGroupsChange = useCallback((wordGroups: any[]) => updateFormData({ wordGroups }), [updateFormData])
+  const handleGameParticipatingWordsChange = useCallback((gameParticipatingWords: number[]) => 
+    updateFormData({ gameParticipatingWords }), [updateFormData])
+  const handleWordColorsChange = useCallback((wordColors: {[key: number]: string}) => updateFormData({ wordColors }), [updateFormData])
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
@@ -270,12 +278,11 @@ export default function MultiStepGameCreator({
             wordGroups={formData.wordGroups}
             gameParticipatingWords={formData.gameParticipatingWords}
             wordColors={formData.wordColors}
-            onVerseChange={useCallback((verse: string) => updateFormData({ verse }), [updateFormData])}
-            onWordsChange={useCallback((words: any[]) => updateFormData({ words }), [updateFormData])}
-            onWordGroupsChange={useCallback((wordGroups: any[]) => updateFormData({ wordGroups }), [updateFormData])}
-            onGameParticipatingWordsChange={useCallback((gameParticipatingWords: number[]) => 
-              updateFormData({ gameParticipatingWords }), [updateFormData])}
-            onWordColorsChange={useCallback((wordColors: {[key: number]: string}) => updateFormData({ wordColors }), [updateFormData])}
+            onVerseChange={handleVerseChange}
+            onWordsChange={handleWordsChange}
+            onWordGroupsChange={handleWordGroupsChange}
+            onGameParticipatingWordsChange={handleGameParticipatingWordsChange}
+            onWordColorsChange={handleWordColorsChange}
           />
         )
       case 4:
