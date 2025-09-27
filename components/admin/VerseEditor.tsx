@@ -3,19 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GameWord, WordGroup } from "@/lib/store/gameSlice";
 
-export const wordClasses = [
-  "adverbe",
-  "déterminant défini",
-  "verbe",
-  "déterminant possessif",
-  "adjectif",
-  "préposition",
-  "nom commun",
-  "pronom",
-  "conjonction",
-  "interjection",
-];
-
 interface VerseEditorProps {
   verse: string;
   words: GameWord[];

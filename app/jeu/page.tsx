@@ -52,57 +52,7 @@ interface DroppedLetter {
 }
 
 // Mapping de couleurs et lettres pour les classes de mots (fallback)
-const wordClassStyleMap: Record<string, { color: string; letter: string }> = {
-  "adverbe": { color: "bg-orange-400", letter: "H" },
-  "déterminant défini": { color: "bg-pink-400", letter: "O" },
-  "verbe": { color: "bg-green-400", letter: "R" },
-  "déterminant possessif": { color: "bg-yellow-400", letter: "A" },
-  "adjectif": { color: "bg-red-400", letter: "I" },
-  "préposition": { color: "bg-green-400", letter: "R" },
-  "nom commun": { color: "bg-blue-400", letter: "E" },
-  "pronom": { color: "bg-purple-400", letter: "X" },
-  "conjonction": { color: "bg-indigo-400", letter: "X" },
-  "interjection": { color: "bg-cyan-400", letter: "X" },
-};
-
-// Données par défaut (maintenues pour compatibilité)
-const defaultPoems: Poem[] = [
-  {
-    id: "default-1",
-    image: "/logo.png",
-    verse: "Demain, l'hiver viendra poser sa main froide sur nos rêves.",
-    words: [
-      { word: "Demain", class: "adverbe", isSelected: false }, // H
-      { word: "l'", class: "déterminant défini", isSelected: false }, // O
-      {
-        word: "viendra",
-        class: "verbe",
-        isSelected: false,
-        groupId: "verbe-groupe-1",
-      }, // R
-      {
-        word: "poser",
-        class: "verbe",
-        isSelected: false,
-        groupId: "verbe-groupe-1",
-      },
-      { word: "sa", class: "déterminant possessif", isSelected: false }, // A
-      { word: "froide", class: "adjectif", isSelected: false }, // I
-      { word: "sur", class: "préposition", isSelected: false }, // R
-      { word: "rêves", class: "nom commun", isSelected: false }, // E
-    ],
-    wordGroups: [
-      {
-        id: "verbe-groupe-1",
-        name: "Groupe verbal",
-        color: "#10B981",
-        wordIndices: [2, 3],
-      },
-    ],
-    targetWord: "HORAIRE",
-    targetWordGender: "masculin",
-  },
-];
+const wordClassStyleMap: Record<string, { color: string; letter: string }> = {};
 
 export default function JeuPage() {
   const { user } = useUser();
@@ -173,7 +123,9 @@ export default function JeuPage() {
   }, [poems, searchParams]);
 
   // Function to build WordClass objects from string array
-  const buildWordClassesFromStrings = (wordClassNames: string[]): WordClass[] => {
+  const buildWordClassesFromStrings = (
+    wordClassNames: string[],
+  ): WordClass[] => {
     return wordClassNames.map((name) => ({
       name,
       color: wordClassStyleMap[name]?.color || "bg-gray-400",
@@ -191,10 +143,10 @@ export default function JeuPage() {
         const sessionToken = await session.getToken({ template: "supabase" });
         if (sessionToken) {
           const wordClassNames = await WordClassesService.fetchWordClasses(
-            sessionToken, 
-            String(selectedPoem.id)
+            sessionToken,
+            String(selectedPoem.id),
           );
-          
+
           if (wordClassNames.length > 0) {
             setWordClasses(buildWordClassesFromStrings(wordClassNames));
           } else {
@@ -527,7 +479,7 @@ export default function JeuPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-100 via-pink-50 to-teal-100">
+      <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-orange-100 via-pink-50 to-teal-100">
         <div className="text-center">
           <h1 className="mb-4 text-2xl font-bold text-gray-800">
             Connectez-vous pour jouer !
@@ -832,7 +784,9 @@ export default function JeuPage() {
                           disabled={loadingWordClasses}
                         >
                           <option value="">
-                            {loadingWordClasses ? "Chargement..." : "Choisir une classe..."}
+                            {loadingWordClasses
+                              ? "Chargement..."
+                              : "Choisir une classe..."}
                           </option>
                           {wordClasses.map((wc) => (
                             <option key={wc.name} value={wc.name}>
@@ -852,17 +806,22 @@ export default function JeuPage() {
                 </h4>
                 <div className="space-y-2">
                   {loadingWordClasses ? (
-                    <div className="text-sm text-gray-500">Chargement des classes de mots...</div>
+                    <div className="text-sm text-gray-500">
+                      Chargement des classes de mots...
+                    </div>
                   ) : wordClasses.length > 0 ? (
                     wordClasses.map((wc) => (
-                      <div key={wc.name} className="flex items-center space-x-2">
-                        <div className={`h-4 w-4 rounded ${wc.color}`}></div>
+                      <div
+                        key={wc.name}
+                        className="flex items-center space-x-2"
+                      >
                         <span className="text-gray-700">{wc.name}</span>
-                        <span className="text-xs text-gray-500 font-mono">({wc.letter})</span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-sm text-gray-500">Aucune classe de mots disponible.</div>
+                    <div className="text-sm text-gray-500">
+                      Aucune classe de mots disponible.
+                    </div>
                   )}
                 </div>
               </div>

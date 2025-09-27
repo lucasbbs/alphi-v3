@@ -37,7 +37,7 @@ export default function AdminPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-orange-100">
+      <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-orange-100 via-orange-50 to-orange-100">
         <div className="text-center">
           <div className="mb-4 text-4xl">⏳</div>
           <p className="text-gray-600">Chargement...</p>
