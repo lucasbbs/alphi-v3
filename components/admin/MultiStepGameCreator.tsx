@@ -123,6 +123,16 @@ export default function MultiStepGameCreator({
     return currentStep > 1
   }
 
+  const canCompleteForm = () => {
+    // Check that all required steps are completed
+    for (let step = 1; step <= STEPS.length; step++) {
+      if (!validateStep(step)) {
+        return false
+      }
+    }
+    return true
+  }
+
   const handleNext = () => {
     if (canGoNext()) {
       setCurrentStep(prev => prev + 1)
@@ -407,14 +417,25 @@ export default function MultiStepGameCreator({
           Étape {currentStep} sur {STEPS.length}
         </div>
 
-        <button
-          onClick={handleNext}
-          disabled={!canGoNext()}
-          className="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
-        >
-          <span>Suivant</span>
-          <ArrowRight className="h-4 w-4" />
-        </button>
+        {currentStep === STEPS.length ? (
+          <button
+            onClick={handleSave}
+            disabled={isLoading || !canCompleteForm()}
+            className="flex items-center space-x-2 rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            <span>{isLoading ? 'Sauvegarde...' : 'Terminer le jeu'}</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            disabled={!canGoNext()}
+            className="flex items-center space-x-2 rounded-lg bg-orange-500 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+          >
+            <span>Suivant</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   )
