@@ -6,6 +6,7 @@ import { useSession } from "@clerk/nextjs";
 import { AppDispatch } from "@/lib/store";
 import { createPoem, updatePoem } from "@/lib/store/gameSlice";
 import { LocalPoem, PoemService } from "@/lib/supabase/services/poemService";
+import { WordClassesService } from "@/lib/supabase/services/wordClassesServices";
 import toast from "react-hot-toast";
 import { ArrowLeft, ArrowRight, Save, Play } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
@@ -82,7 +83,7 @@ export default function MultiStepGameCreator({
         try {
           const sessionToken = await session.getToken({ template: "supabase" });
           if (sessionToken) {
-            const wordClasses = await PoemService.fetchWordClasses(
+            const wordClasses = await WordClassesService.fetchWordClasses(
               sessionToken,
               editingPoem.id || "",
             );
@@ -261,7 +262,7 @@ export default function MultiStepGameCreator({
       }
 
       // Save word classes
-      await PoemService.saveWordClasses(
+      await WordClassesService.saveWordClasses(
         sessionToken,
         poem.id || id,
         formData.wordClasses,

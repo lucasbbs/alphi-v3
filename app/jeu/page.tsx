@@ -158,14 +158,14 @@ export default function JeuPage() {
           localStorage.removeItem("alphi-test-poem");
         } else {
           console.warn("Aucun poème de test trouvé dans localStorage");
-          setAvailablePoems(poems.length > 0 ? poems : defaultPoems);
+          setAvailablePoems(poems);
         }
       } catch (error) {
         console.error("Erreur lors du parsing du poème de test:", error);
-        setAvailablePoems(poems.length > 0 ? poems : defaultPoems);
+        setAvailablePoems(poems);
       }
     } else {
-      setAvailablePoems(poems.length > 0 ? poems : defaultPoems);
+      setAvailablePoems(poems);
     }
   }, [poems, searchParams]);
 

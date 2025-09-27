@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { GameWord, WordGroup } from "@/lib/store/gameSlice";
-import ColorPicker from "./ColorPicker";
-import Popover from "@/components/shared/popover";
 
 export const wordClasses = [
   "adverbe",

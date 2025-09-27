@@ -13,44 +13,11 @@ interface GameState {
   error: string | null
 }
 
-// Default poems for fallback
-const getDefaultPoems = (): Poem[] => [
-  {
-    id: 'default-1',
-    image: '/logo.png',
-    verse: 'Demain, l\'hiver viendra poser sa main froide sur nos rêves.',
-    words: [
-      { word: 'Demain', class: 'adverbe', isSelected: false },
-      { word: 'l\'', class: 'déterminant défini', isSelected: false },
-      { word: 'viendra', class: 'verbe', isSelected: false, groupId: 'verbe-groupe-1' },
-      { word: 'poser', class: 'verbe', isSelected: false, groupId: 'verbe-groupe-1' },
-      { word: 'sa', class: 'déterminant possessif', isSelected: false },
-      { word: 'froide', class: 'adjectif', isSelected: false },
-      { word: 'sur', class: 'préposition', isSelected: false },
-      { word: 'rêves', class: 'nom commun', isSelected: false }
-    ],
-    wordGroups: [
-      {
-        id: 'verbe-groupe-1',
-        name: 'Groupe verbal',
-        color: '#10B981',
-        wordIndices: [2, 3]
-      }
-    ],
-    targetWord: 'HORAIRE',
-    targetWordGender: 'masculin',
-    createdAt: new Date().toISOString(),
-    gameParticipatingWords: [0, 2, 3, 5],
-    wordColors: { 0: "#EF4444", 2: "#10B981", 3: "#10B981", 5: "#F59E0B" }
-  }
-]
-
-// Async thunks for Supabase operations
 export const fetchPoems = createAsyncThunk(
   'game/fetchPoems',
   async (sessionToken: string) => {
     const poems = await PoemService.fetchPoems(sessionToken)
-    return poems.length > 0 ? poems : getDefaultPoems()
+    return poems.length > 0 ? poems : []
   }
 )
 
@@ -61,6 +28,7 @@ export const createPoem = createAsyncThunk(
     if (!createdPoem) {
       throw new Error('Failed to create poem')
     }
+    createdPoem.wordClasses = poem.wordClasses ?? []
     return createdPoem
   }
 )
@@ -72,6 +40,7 @@ export const updatePoem = createAsyncThunk(
     if (!updatedPoem) {
       throw new Error('Failed to update poem')
     }
+    updatedPoem.wordClasses = poem.wordClasses ?? []
     return updatedPoem
   }
 )
@@ -119,6 +88,11 @@ const gameSlice = createSlice({
       .addCase(fetchPoems.fulfilled, (state, action) => {
         state.loading = false
         state.poems = action.payload
+        state.word_classes = Array.from(
+          new Set(
+            action.payload.flatMap(poem => poem.wordClasses ?? [])
+          )
+        )
       })
       .addCase(fetchPoems.rejected, (state, action) => {
         state.loading = false
@@ -134,6 +108,12 @@ const gameSlice = createSlice({
       .addCase(createPoem.fulfilled, (state, action) => {
         state.loading = false
         state.poems.push(action.payload)
+        state.word_classes = Array.from(
+          new Set([
+            ...state.word_classes,
+            ...(action.payload.wordClasses ?? [])
+          ])
+        )
       })
       .addCase(createPoem.rejected, (state, action) => {
         state.loading = false
@@ -151,6 +131,11 @@ const gameSlice = createSlice({
         const index = state.poems.findIndex(poem => poem.id === action.payload.id)
         if (index !== -1) {
           state.poems[index] = action.payload
+          state.word_classes = Array.from(
+            new Set(
+              state.poems.flatMap(poem => poem.wordClasses ?? [])
+            )
+          )
         }
       })
       .addCase(updatePoem.rejected, (state, action) => {
@@ -167,6 +152,11 @@ const gameSlice = createSlice({
       .addCase(deletePoem.fulfilled, (state, action) => {
         state.loading = false
         state.poems = state.poems.filter(poem => poem.id !== action.payload)
+        state.word_classes = Array.from(
+          new Set(
+            state.poems.flatMap(poem => poem.wordClasses ?? [])
+          )
+        )
       })
       .addCase(deletePoem.rejected, (state, action) => {
         state.loading = false
