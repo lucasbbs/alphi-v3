@@ -15,15 +15,16 @@ export function transformSupabasePoem(supabasePoem: SupabasePoem): LocalPoem {
 
   return {
     id: supabasePoem.id,
-    image: supabasePoem.image, // Images handled separately for now
+    image: supabasePoem.image,
     verse: supabasePoem.content,
-    words: supabasePoem.words || [], // Get words from Supabase
+    words: supabasePoem.words || [],
     wordGroups: localWordGroups,
     targetWord: supabasePoem.target_word,
     targetWordGender: (supabasePoem.target_word_gender as 'masculin' | 'féminin') || 'masculin',
     createdAt: supabasePoem.created_at,
     gameParticipatingWords: supabasePoem.game_participating_words || [],
-    wordColors: supabasePoem.word_colors ? JSON.parse(JSON.stringify(supabasePoem.word_colors)) : {}
+    wordColors: supabasePoem.word_colors ? JSON.parse(JSON.stringify(supabasePoem.word_colors)) : {},
+    wordClasses: [] // Will be loaded separately from word_classes table
   }
 }
 
@@ -38,16 +39,18 @@ export function transformLocalPoem(localPoem: LocalPoem): Partial<SupabasePoem> 
   }))
 
   return {
+    id: localPoem.id, // Include the ID for updates
     title: `Poem ${localPoem.id}`,
     content: localPoem.verse,
     verses: [localPoem.verse],
-    words: localPoem.words, // Store words in Supabase
+    words: localPoem.words,
     target_word: localPoem.targetWord,
     target_word_gender: localPoem.targetWordGender,
     game_participating_words: localPoem.gameParticipatingWords || [],
     word_groups: supabaseWordGroups as any,
     word_colors: localPoem.wordColors || {},
-    difficulty_level: 'medium' // Default difficulty
+    difficulty_level: 'medium',
+    image: localPoem.image // Include image
   }
 }
 
