@@ -9,6 +9,7 @@ import { ProgressService } from "@/lib/supabase/services/progressService";
 import toast from "react-hot-toast";
 import { Clock } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { WordClassesService } from "@/lib/supabase/services/wordClassesServices";
 
 // Types pour le jeu
 interface WordClass {
@@ -50,19 +51,19 @@ interface DroppedLetter {
   customStyle?: { backgroundColor: string };
 }
 
-// Classes de mots avec leurs couleurs et lettres selon le tableau fourni
-const wordClasses: WordClass[] = [
-  { name: "adverbe", color: "bg-orange-400", letter: "H" }, // Demain → Orange → H
-  { name: "déterminant défini", color: "bg-pink-400", letter: "O" }, // L' → Pink → O
-  { name: "verbe", color: "bg-green-400", letter: "R" }, // Viendra → Green → R
-  { name: "déterminant possessif", color: "bg-yellow-400", letter: "A" }, // Sa → Yellow → A
-  { name: "adjectif", color: "bg-red-400", letter: "I" }, // Froide → Red → I
-  { name: "préposition", color: "bg-green-400", letter: "R" }, // Sur → Green → R
-  { name: "nom commun", color: "bg-blue-400", letter: "E" }, // Rêves → Blue → E
-  { name: "pronom", color: "bg-purple-400", letter: "X" }, // X → Purple → X
-  { name: "conjonction", color: "bg-indigo-400", letter: "X" }, // X → Indigo → X
-  { name: "interjection", color: "bg-cyan-400", letter: "X" }, // X → Cyan → X
-];
+// Mapping de couleurs et lettres pour les classes de mots (fallback)
+const wordClassStyleMap: Record<string, { color: string; letter: string }> = {
+  "adverbe": { color: "bg-orange-400", letter: "H" },
+  "déterminant défini": { color: "bg-pink-400", letter: "O" },
+  "verbe": { color: "bg-green-400", letter: "R" },
+  "déterminant possessif": { color: "bg-yellow-400", letter: "A" },
+  "adjectif": { color: "bg-red-400", letter: "I" },
+  "préposition": { color: "bg-green-400", letter: "R" },
+  "nom commun": { color: "bg-blue-400", letter: "E" },
+  "pronom": { color: "bg-purple-400", letter: "X" },
+  "conjonction": { color: "bg-indigo-400", letter: "X" },
+  "interjection": { color: "bg-cyan-400", letter: "X" },
+};
 
 // Données par défaut (maintenues pour compatibilité)
 const defaultPoems: Poem[] = [
@@ -125,6 +126,8 @@ export default function JeuPage() {
   const [sessionTime, setSessionTime] = useState<number>(0);
   const [gameScore, setGameScore] = useState<number>(0);
   const [availablePoems, setAvailablePoems] = useState<Poem[]>([]);
+  const [wordClasses, setWordClasses] = useState<WordClass[]>([]);
+  const [loadingWordClasses, setLoadingWordClasses] = useState<boolean>(false);
 
   // Fetch poems from Supabase on component mount
   useEffect(() => {
@@ -168,6 +171,51 @@ export default function JeuPage() {
       setAvailablePoems(poems);
     }
   }, [poems, searchParams]);
+
+  // Function to build WordClass objects from string array
+  const buildWordClassesFromStrings = (wordClassNames: string[]): WordClass[] => {
+    return wordClassNames.map((name) => ({
+      name,
+      color: wordClassStyleMap[name]?.color || "bg-gray-400",
+      letter: wordClassStyleMap[name]?.letter || "X",
+    }));
+  };
+
+  // Fetch word classes when a poem is selected
+  useEffect(() => {
+    const loadWordClasses = async () => {
+      if (!selectedPoem || !session) return;
+
+      setLoadingWordClasses(true);
+      try {
+        const sessionToken = await session.getToken({ template: "supabase" });
+        if (sessionToken) {
+          const wordClassNames = await WordClassesService.fetchWordClasses(
+            sessionToken, 
+            String(selectedPoem.id)
+          );
+          
+          if (wordClassNames.length > 0) {
+            setWordClasses(buildWordClassesFromStrings(wordClassNames));
+          } else {
+            // Fallback to default classes if none found in database
+            const defaultClasses = Object.keys(wordClassStyleMap);
+            setWordClasses(buildWordClassesFromStrings(defaultClasses));
+          }
+        }
+      } catch (error) {
+        console.error("Error loading word classes:", error);
+        // Fallback to default classes on error
+        const defaultClasses = Object.keys(wordClassStyleMap);
+        setWordClasses(buildWordClassesFromStrings(defaultClasses));
+        toast.error("Erreur lors du chargement des classes de mots");
+      } finally {
+        setLoadingWordClasses(false);
+      }
+    };
+
+    loadWordClasses();
+  }, [selectedPoem, session]);
 
   const handlePoemSelection = (poem: Poem) => {
     setSelectedPoem(poem);
