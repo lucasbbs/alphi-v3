@@ -5,7 +5,7 @@ import { useUser, useSession } from '@clerk/nextjs'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState, AppDispatch } from '@/lib/store'
 import { deletePoem } from '@/lib/store/gameSlice'
-import GameCreator from '@/components/admin/GameCreator'
+import MultiStepGameCreator from '@/components/admin/MultiStepGameCreator'
 import { Poem } from '@/lib/store/gameSlice'
 import toast from 'react-hot-toast'
 
@@ -82,7 +82,7 @@ export default function AdminPage() {
     return (
       <div className="w-full bg-gradient-to-br from-orange-100 via-orange-50 to-orange-100 p-6 min-h-screen">
         <div className="max-w-6xl mx-auto">
-          <GameCreator
+          <MultiStepGameCreator
             editingPoem={editingPoem}
             onCancel={handleBackToDashboard}
             onTestGame={handleTestGame}

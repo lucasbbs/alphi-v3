@@ -9,7 +9,7 @@ import { LocalPoem, PoemService } from '@/lib/supabase/services/poemService'
 import toast from 'react-hot-toast'
 import { ArrowLeft, ArrowRight, Save, Play } from 'lucide-react'
 
-// Step Components (will be created next)
+// Step Components
 import WordClassSelection from './steps/WordClassSelection'
 import ImageSelection from './steps/ImageSelection'
 import VerseInput from './steps/VerseInput'
