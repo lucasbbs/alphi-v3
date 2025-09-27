@@ -63,6 +63,14 @@ export interface LocalPoem {
   createdAt: string
   gameParticipatingWords?: number[]
   wordColors?: {[key: number]: string}
+  wordClasses?: string[] // Available word classes for this poem
+}
+
+// Word classes interface for database storage
+export interface WordClasses {
+  id: string
+  word_classes: string[]
+  created_at: string
 }
 
 export interface GameWord {
@@ -172,6 +180,77 @@ export class PoemService {
       return true
     } catch (error) {
       console.error('Failed to delete poem:', error)
+      return false
+    }
+  }
+
+  // Word Classes Management Functions
+  static async saveWordClasses(sessionToken: string, poemId: string, wordClasses: string[]): Promise<WordClasses | null> {
+    try {
+      const supabase = createClerkSupabaseClientFromHook(sessionToken)
+      
+      const wordClassesData = {
+        id: poemId,
+        word_classes: wordClasses
+      }
+      
+      const { data, error } = await supabase
+        .from('word_classes')
+        .upsert([wordClassesData])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error saving word classes:', error)
+        throw error
+      }
+
+      return data
+    } catch (error) {
+      console.error('Failed to save word classes:', error)
+      return null
+    }
+  }
+
+  static async fetchWordClasses(sessionToken: string, poemId: string): Promise<string[]> {
+    try {
+      const supabase = createClerkSupabaseClientFromHook(sessionToken)
+      
+      const { data, error } = await supabase
+        .from('word_classes')
+        .select('word_classes')
+        .eq('id', poemId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching word classes:', error)
+        return []
+      }
+
+      return data?.word_classes || []
+    } catch (error) {
+      console.error('Failed to fetch word classes:', error)
+      return []
+    }
+  }
+
+  static async deleteWordClasses(sessionToken: string, poemId: string): Promise<boolean> {
+    try {
+      const supabase = createClerkSupabaseClientFromHook(sessionToken)
+      
+      const { error } = await supabase
+        .from('word_classes')
+        .delete()
+        .eq('id', poemId)
+
+      if (error) {
+        console.error('Error deleting word classes:', error)
+        throw error
+      }
+
+      return true
+    } catch (error) {
+      console.error('Failed to delete word classes:', error)
       return false
     }
   }
