@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { useSession } from '@clerk/nextjs'
 import { AppDispatch } from '@/lib/store'
@@ -84,9 +84,9 @@ export default function MultiStepGameCreator({
     loadWordClasses()
   }, [editingPoem, session])
 
-  const updateFormData = (updates: Partial<FormData>) => {
+  const updateFormData = useCallback((updates: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
-  }
+  }, [])
 
   const validateStep = (step: number): boolean => {
     switch (step) {
@@ -268,9 +268,14 @@ export default function MultiStepGameCreator({
             verse={formData.verse}
             words={formData.words}
             wordGroups={formData.wordGroups}
-            onVerseChange={(verse: string) => updateFormData({ verse })}
-            onWordsChange={(words: any[]) => updateFormData({ words })}
-            onWordGroupsChange={(wordGroups: any[]) => updateFormData({ wordGroups })}
+            gameParticipatingWords={formData.gameParticipatingWords}
+            wordColors={formData.wordColors}
+            onVerseChange={useCallback((verse: string) => updateFormData({ verse }), [updateFormData])}
+            onWordsChange={useCallback((words: any[]) => updateFormData({ words }), [updateFormData])}
+            onWordGroupsChange={useCallback((wordGroups: any[]) => updateFormData({ wordGroups }), [updateFormData])}
+            onGameParticipatingWordsChange={useCallback((gameParticipatingWords: number[]) => 
+              updateFormData({ gameParticipatingWords }), [updateFormData])}
+            onWordColorsChange={useCallback((wordColors: {[key: number]: string}) => updateFormData({ wordColors }), [updateFormData])}
           />
         )
       case 4:

@@ -82,7 +82,7 @@ export default function VerseEditor({
       onWordColorsChange?.({});
     }
     prevVerseRef.current = verse;
-  }, [verse]);
+  }, [verse, onGameParticipatingWordsChange, onWordColorsChange]);
 
   // Fonction d'attribution automatique des classes grammaticales
   const autoClassifyWord = (word: string): string => {

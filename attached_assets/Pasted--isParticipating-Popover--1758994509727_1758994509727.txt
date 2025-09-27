@@ -1,0 +1,39 @@
+                        {isParticipating && (
+                          <Popover
+                            openPopover={openPopovers[index] || false}
+                            setOpenPopover={(open) => {
+                              if (typeof open === "boolean") {
+                                togglePopover(index, open);
+                              } else {
+                                // Handle function case
+                                togglePopover(
+                                  index,
+                                  open(openPopovers[index] || false),
+                                );
+                              }
+                            }}
+                            content={
+                              <div className="w-80 space-y-3 p-4">
+                                <h5 className="text-sm font-medium text-gray-700">
+                                  Couleur pour "{groupWords}"
+                                </h5>
+                                <ColorPicker
+                                  selectedColor={wordColors[index] || "#D1D5DB"}
+                                  onColorChange={(color) => {
+                                    handleWordColorChange(index, color);
+                                    togglePopover(index, false);
+                                  }}
+                                />
+                              </div>
+                            }
+                          >
+                            <button
+                              type="button"
+                              className="h-6 w-6 rounded border border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              style={{
+                                backgroundColor: wordColors[index] || "#D1D5DB",
+                              }}
+                              title="Choisir la couleur"
+                            />
+                          </Popover>
+                        )}

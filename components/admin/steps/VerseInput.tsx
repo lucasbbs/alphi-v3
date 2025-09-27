@@ -7,18 +7,26 @@ interface VerseInputProps {
   verse: string
   words: any[]
   wordGroups: any[]
+  gameParticipatingWords?: number[]
+  wordColors?: { [key: number]: string }
   onVerseChange: (verse: string) => void
   onWordsChange: (words: any[]) => void
   onWordGroupsChange: (wordGroups: any[]) => void
+  onGameParticipatingWordsChange?: (participatingWords: number[]) => void
+  onWordColorsChange?: (wordColors: { [key: number]: string }) => void
 }
 
 export default function VerseInput({
   verse,
   words,
   wordGroups,
+  gameParticipatingWords,
+  wordColors,
   onVerseChange,
   onWordsChange,
-  onWordGroupsChange
+  onWordGroupsChange,
+  onGameParticipatingWordsChange,
+  onWordColorsChange
 }: VerseInputProps) {
   return (
     <div className="space-y-6">
@@ -35,9 +43,13 @@ export default function VerseInput({
         verse={verse}
         words={words}
         wordGroups={wordGroups}
+        gameParticipatingWords={gameParticipatingWords}
+        wordColors={wordColors}
         onVerseChange={onVerseChange}
         onWordsChange={onWordsChange}
         onWordGroupsChange={onWordGroupsChange}
+        onGameParticipatingWordsChange={onGameParticipatingWordsChange}
+        onWordColorsChange={onWordColorsChange}
       />
     </div>
   )
